@@ -27,6 +27,16 @@
       margin: auto;
       margin-bottom: 1rem;
     }
+    #messaggioInvio {
+      margin-top: 2rem;
+      padding: 1rem;
+      background-color: #eaffea;
+      border: 1px solid #25D366;
+      border-radius: 8px;
+      color: #0b6b3a;
+      font-size: 1.1rem;
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -74,6 +84,13 @@
 
     <button type="submit">Invia richiesta via WhatsApp</button>
   </form>
+
+  <div id="messaggioInvio">
+    ✅ Il tuo messaggio è stato preparato!<br>
+    Tra qualche secondo si aprirà WhatsApp con il testo già pronto.<br>
+    Dopo l'invio verrai ricontattato al più presto. Grazie per averci scelto!<br><br>
+    <strong>MAINETTI SOLUTION</strong>
+  </div>
 
   <script>
     const descrizioni = {
@@ -128,7 +145,10 @@ Indirizzo: *${indirizzo}*`;
       const numero = '41786622588';
       const url = `https://wa.me/${numero}?text=${encodeURIComponent(messaggio)}`;
 
-      window.open(url, '_blank');
+      document.getElementById('messaggioInvio').style.display = 'block';
+      setTimeout(() => {
+        window.open(url, '_blank');
+      }, 5000);
     });
 
     if ('serviceWorker' in navigator) {
