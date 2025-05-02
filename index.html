@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Richiesta Intervento - MAINETTI SOLUTION</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#25D366">
+  <style>
+    body { font-family: sans-serif; padding: 1rem; max-width: 500px; margin: auto; }
+    label { display: block; margin-top: 1rem; font-weight: bold; }
+    input, textarea, select, button {
+      width: 100%; padding: 0.5rem; margin-top: 0.25rem;
+      border-radius: 6px; border: 1px solid #ccc;
+    }
+    button {
+      margin-top: 1rem; background-color: #25D366; color: white;
+      border: none; cursor: pointer;
+    }
+    button:hover { background-color: #128C7E; }
+    #descrizioneTipo {
+      margin-top: 0.5rem; font-style: italic; color: #555;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Richiesta Intervento</h1>
+
+  <form id="whatsappForm">
+    <label for="tipo">Tipo di intervento:</label>
+    <select id="tipo" required>
+      <option value="">-- Seleziona --</option>
+      <option value="Telematico">Telematico</option>
+      <option value="Elettrico">Elettrico</option>
+      <option value="Idraulico">Idraulico</option>
+      <option value="Pulizia">Pulizia</option>
+      <option value="Sfalcio prato">Sfalcio prato</option>
+      <option value="Manutenzione generale">Manutenzione generale</option>
+      <option value="Sicurezza">Sicurezza</option>
+    </select>
+    <p id="descrizioneTipo"></p>
+
+    <label for="descrizione">Descrizione:</label>
+    <textarea id="descrizione" rows="3" required></textarea>
+
+    <label for="urgenza">Urgenza:</label>
+    <select id="urgenza" required>
+      <option value="">-- Seleziona --</option>
+      <option value="Bassa">Bassa</option>
+      <option value="Alta">Alta</option>
+    </select>
+
+    <label for="data">Data desiderata:</label>
+    <input type="date" id="data" required>
+
+    <label for="fascia">Fascia oraria:</label>
+    <select id="fascia" required>
+      <option value="">-- Seleziona --</option>
+      <option value="08:00 - 12:00">08:00 - 12:00</option>
+      <option value="13:00 - 16:00">13:00 - 16:00</option>
+      <option value="16:00 - 19:00">16:00 - 19:00</option>
+    </select>
+
+    <label for="indirizzo">Indirizzo:</label>
+    <input type="text" id="indirizzo" placeholder="Via, CAP, Città" required>
+
+    <button type="submit">Invia richiesta via WhatsApp</button>
+  </form>
+
+  <script>
+    const descrizioni = {
+      "Telematico": "Interventi legati alla rete, ai sistemi di comunicazione e alla gestione dei dati. Questo include la configurazione di reti, la manutenzione di server e la risoluzione di problemi di connettività.",
+      "Elettrico": "Interventi su impianti elettrici, cablaggi e manutenzione di apparecchiature elettriche. Questo può comprendere l'installazione di nuovi impianti, la riparazione di guasti elettrici e la verifica della sicurezza degli impianti.",
+      "Idraulico": "Lavori su impianti idraulici, tubature e sistemi di riscaldamento. Include la riparazione di perdite, l'installazione di nuovi impianti idraulici e la manutenzione di caldaie e sistemi di riscaldamento.",
+      "Pulizia": "Pulizia generale, sanificazione e manutenzione degli spazi. Questo può includere la pulizia di uffici, la sanificazione di ambienti pubblici e la manutenzione di aree comuni.",
+      "Sfalcio prato": "Manutenzione del verde, taglio dell'erba e cura del giardino. Include la potatura di alberi e arbusti, la gestione di aiuole e la manutenzione di prati.",
+      "Manutenzione generale": "Interventi che non rientrano nelle categorie specifiche. Questo può includere piccole riparazioni, lavori di manutenzione ordinaria e interventi di emergenza.",
+      "Sicurezza": "Interventi legati alla sicurezza degli edifici e degli impianti. Include l'installazione di sistemi di allarme, la verifica della sicurezza degli impianti e la manutenzione di dispositivi di sicurezza."
+    };
+
+    document.getElementById('tipo').addEventListener('change', function() {
+      const tipo = this.value;
+      const descrizione = descrizioni[tipo] || "";
+      document.getElementById('descrizioneTipo').textContent = descrizione;
+    });
+
+    document.getElementById('whatsappForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const tipo = document.getElementById('tipo').value;
+      const descrizioneTipo = descrizioni[tipo] || "";
+      const descrizione = document.getElementById('descrizione').value;
+      const urgenza = document.getElementById('urgenza').value;
+      const data = document.getElementById('data').value;
+      const fascia = document.getElementById('fascia').value;
+      const indirizzo = document.getElementById('indirizzo').value;
+
+      if (!tipo || !descrizione || !urgenza || !data || !fascia || !indirizzo) {
+        alert('Per favore, compila tutti i campi.');
+        return;
+      }
+
+      const messaggio = `Richiesta intervento:
+Tipo: ${tipo}
+Descrizione tipo: ${descrizioneTipo}
+Descrizione: ${descrizione}
+Urgenza: ${urgenza}
+Data desiderata: ${data}
+Fascia oraria: ${fascia}
+Indirizzo: ${indirizzo}`;
+
+      const numero = '41791234567';
+      const url = `https://wa.me/${numero}?text=${encodeURIComponent(messaggio)}`;
+
+      window.open(url, '_blank');
+    });
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js')
+          .then(reg => console.log('Service Worker registrato'))
+          .catch(err => console.error('Errore nel Service Worker:', err));
+      });
+    }
+  </script>
+
+</body>
+</html>
