@@ -21,10 +21,17 @@
     #descrizioneTipo {
       margin-top: 0.5rem; font-style: italic; color: #555;
     }
+    img.logo {
+      max-width: 200px;
+      display: block;
+      margin: auto;
+      margin-bottom: 1rem;
+    }
   </style>
 </head>
 <body>
 
+  <img src="logo.png" alt="Mainetti Solution" class="logo">
   <h1>Richiesta Intervento</h1>
 
   <form id="whatsappForm">
@@ -85,11 +92,16 @@
       document.getElementById('descrizioneTipo').textContent = descrizione;
     });
 
+    function formattaDataIt(dataIso) {
+      const mesi = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"];
+      const d = new Date(dataIso);
+      return `${d.getDate()} ${mesi[d.getMonth()]} ${d.getFullYear()}`;
+    }
+
     document.getElementById('whatsappForm').addEventListener('submit', function(e) {
       e.preventDefault();
 
       const tipo = document.getElementById('tipo').value;
-      const descrizioneTipo = descrizioni[tipo] || "";
       const descrizione = document.getElementById('descrizione').value;
       const urgenza = document.getElementById('urgenza').value;
       const data = document.getElementById('data').value;
@@ -101,14 +113,17 @@
         return;
       }
 
-      const messaggio = `Richiesta intervento:
-Tipo: ${tipo}
-Descrizione tipo: ${descrizioneTipo}
-Descrizione: ${descrizione}
-Urgenza: ${urgenza}
-Data desiderata: ${data}
-Fascia oraria: ${fascia}
-Indirizzo: ${indirizzo}`;
+      const urgenzaTesto = urgenza === 'Alta' ? '*Alta* ⭐⭐' : 'Bassa';
+      const dataFormattata = `*${formattaDataIt(data)}*`;
+
+      const messaggio = `*RICHIESTA INTERVENTO ${tipo.toUpperCase()}*
+
+Tipo di intervento: *${tipo}*
+Descrizione: *${descrizione}*
+Urgenza: ${urgenzaTesto}
+Data desiderata: ${dataFormattata}
+Fascia oraria: *${fascia}*
+Indirizzo: *${indirizzo}*`;
 
       const numero = '41786622588';
       const url = `https://wa.me/${numero}?text=${encodeURIComponent(messaggio)}`;
