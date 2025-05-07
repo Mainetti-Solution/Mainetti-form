@@ -27,12 +27,77 @@
       margin: auto;
       margin-bottom: 1rem;
     }
+    /* Stile per il pulsante di installazione */
+    #installButton {
+      display: none; /* Inizialmente nascosto */
+      background-color: #ff3a30; /* Rosso come il logo Mainetti */
+      color: white;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 6px;
+      font-weight: bold;
+      text-align: center;
+      cursor: pointer;
+      border: 2px solid black;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+    #installButton:hover {
+      background-color: #cf2a20;
+    }
+    /* Banner di installazione */
+    .install-banner {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: rgba(255, 255, 255, 0.95);
+      padding: 10px;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .install-banner-text {
+      flex-grow: 1;
+      margin-right: 10px;
+    }
+    .install-banner-button {
+      background-color: #ff3a30;
+      color: white;
+      padding: 8px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .install-banner-close {
+      background: none;
+      border: none;
+      color: #555;
+      font-size: 18px;
+      cursor: pointer;
+      width: auto;
+      padding: 0 10px;
+    }
   </style>
 </head>
 <body>
 
   <img src="logo.png" alt="Mainetti Solution" class="logo">
   <h1>Richiesta Intervento</h1>
+  
+  <!-- Pulsante di installazione -->
+  <div id="installButton">📱 Installa App sul dispositivo</div>
+  
+  <!-- Banner di installazione -->
+  <div class="install-banner" id="installBanner">
+    <div class="install-banner-text">
+      Installa questa app sul tuo dispositivo per un accesso rapido
+    </div>
+    <button class="install-banner-button" id="installBannerButton">Installa</button>
+    <button class="install-banner-close" id="installBannerClose">✕</button>
+  </div>
 
   <form id="whatsappForm">
     <label for="tipo">Tipo di intervento:</label>
@@ -130,6 +195,89 @@ Indirizzo: *${indirizzo}*`;
 
       window.open(url, '_blank');
     });
+
+    // Variabile per memorizzare l'evento di installazione
+    let deferredPrompt;
+    const installButton = document.getElementById('installButton');
+    const installBanner = document.getElementById('installBanner');
+    const installBannerButton = document.getElementById('installBannerButton');
+    const installBannerClose = document.getElementById('installBannerClose');
+
+    // Nascondi il banner quando l'utente clicca su chiudi
+    installBannerClose.addEventListener('click', () => {
+      installBanner.style.display = 'none';
+      // Salva nella sessione la preferenza dell'utente
+      sessionStorage.setItem('installBannerClosed', 'true');
+    });
+
+    // Funzione per gestire l'installazione
+    function installApp() {
+      // Nascondi il pulsante e il banner
+      installButton.style.display = 'none';
+      installBanner.style.display = 'none';
+      
+      // Mostra il prompt di installazione
+      deferredPrompt.prompt();
+      
+      // Attendi la scelta dell'utente
+      deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+          console.log('Utente ha accettato l\'installazione');
+        } else {
+          console.log('Utente ha rifiutato l\'installazione');
+          // Mostra nuovamente il pulsante se l'utente rifiuta
+          setTimeout(() => {
+            installButton.style.display = 'block';
+          }, 2000);
+        }
+        // Reset della variabile prompt
+        deferredPrompt = null;
+      });
+    }
+
+    // Aggiungi listener al pulsante di installazione
+    installButton.addEventListener('click', installApp);
+    installBannerButton.addEventListener('click', installApp);
+
+    // Ascolta l'evento beforeinstallprompt
+    window.addEventListener('beforeinstallprompt', (e) => {
+      // Previeni la visualizzazione automatica del prompt
+      e.preventDefault();
+      
+      // Salva l'evento per uso futuro
+      deferredPrompt = e;
+      
+      // Controlla se l'utente ha già chiuso il banner in questa sessione
+      const bannerClosed = sessionStorage.getItem('installBannerClosed') === 'true';
+      
+      // Mostra il pulsante di installazione
+      installButton.style.display = 'block';
+      
+      // Mostra il banner solo se non è stato chiuso in questa sessione
+      if (!bannerClosed) {
+        installBanner.style.display = 'flex';
+      }
+      
+      console.log('App è installabile!');
+    });
+
+    // Rileva quando la PWA viene installata
+    window.addEventListener('appinstalled', (e) => {
+      // Nascondi elementi di installazione
+      installButton.style.display = 'none';
+      installBanner.style.display = 'none';
+      
+      // Mostra messaggio di conferma (opzionale)
+      console.log('PWA è stata installata con successo');
+    });
+
+    // Controlla se app è già installata per nascondere il pulsante
+    if (window.matchMedia('(display-mode: standalone)').matches || 
+        window.navigator.standalone === true) {
+      // L'app è già installata, nascondi pulsante e banner
+      installButton.style.display = 'none';
+      installBanner.style.display = 'none';
+    }
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
